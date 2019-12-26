@@ -29,9 +29,14 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     private Cipher mCipher;
 
-    private LoginActivity mActivity;
+
+    private IBiometricsAuthentication mBiometricsAuthentication;
 
     private TextView errorMsg;
+
+    public void setIBiometricsAuthentication(IBiometricsAuthentication biometricsAuthentication) {
+        this.mBiometricsAuthentication = biometricsAuthentication;
+    }
 
     /**
      * 标识是否是用户主动取消的认证。
@@ -45,7 +50,6 @@ public class FingerprintDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mActivity = (LoginActivity) getActivity();
     }
 
     @Override
@@ -95,7 +99,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                 if (!isSelfCancelled) {
                     errorMsg.setText(errString);
                     if (errorCode == FingerprintManager.FINGERPRINT_ERROR_LOCKOUT) {
-                        Toast.makeText(mActivity, errString, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), errString, Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
                 }
@@ -108,8 +112,8 @@ public class FingerprintDialogFragment extends DialogFragment {
 
             @Override
             public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
-                Toast.makeText(mActivity, "指纹认证成功", Toast.LENGTH_SHORT).show();
-                mActivity.onAuthenticated();
+                Toast.makeText(getActivity(), "指纹认证成功", Toast.LENGTH_SHORT).show();
+                mBiometricsAuthentication.onAuthenticationSuccess();
             }
 
             @Override

@@ -1,7 +1,5 @@
 package com.chenlw.android.biometrics.demo;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.TargetApi;
 import android.app.KeyguardManager;
 import android.content.Intent;
@@ -10,9 +8,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.chenlw.android.biometrics.demo.biometrics.FingerprintDialogFragment;
+import com.chenlw.android.biometrics.demo.biometrics.IBiometricsAuthentication;
 
 import java.security.KeyStore;
 
@@ -20,16 +23,21 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements IBiometricsAuthentication, View.OnClickListener {
 
     private static final String DEFAULT_KEY_NAME = "default_key";
 
     KeyStore keyStore;
+    /**
+     * 测试生物识别接口
+     */
+    private Button mBtnTestBiometrics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        initView();
         if (supportFingerprint()) {
             initKey();
             initCipher();
@@ -93,13 +101,44 @@ public class LoginActivity extends AppCompatActivity {
     private void showFingerPrintDialog(Cipher cipher) {
         FingerprintDialogFragment fragment = new FingerprintDialogFragment();
         fragment.setCipher(cipher);
+        fragment.setIBiometricsAuthentication(this);
         fragment.show(getFragmentManager(), "fingerprint");
     }
 
-    public void onAuthenticated() {
+    @Override
+    public void onAuthenticationSuccess() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }
+
+    @Override
+    public void onAuthenticationFailure() {
+
+    }
+
+    private void initView() {
+        mBtnTestBiometrics = (Button) findViewById(R.id.btn_test_biometrics);
+        mBtnTestBiometrics.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_test_biometrics:
+                testBiometrics();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void testBiometrics(){
+        if (supportFingerprint()) {
+            initKey();
+            initCipher();
+        }
+    }
+
 
 }
