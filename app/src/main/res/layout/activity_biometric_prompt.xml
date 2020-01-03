@@ -11,19 +11,13 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="登录页面"
+        android:text="测试生物识别接口页面"
         android:textSize="18sp"
         />
 
     <Button
         android:id="@+id/btn_test_biometrics"
         android:text="测试生物识别接口"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/btn_to_test_activity"
-        android:text="进入测试生物识别接口的activity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-//import androidx.fragment.app.DialogFragment;
 
-import com.chenlw.android.biometrics.demo.LoginActivity;
 import com.chenlw.android.biometrics.demo.R;
 
 import javax.crypto.Cipher;
+
+//import androidx.fragment.app.DialogFragment;
 
 @TargetApi(23)
 public class FingerprintDialogFragment extends DialogFragment {
@@ -30,12 +31,12 @@ public class FingerprintDialogFragment extends DialogFragment {
     private Cipher mCipher;
 
 
-    private IBiometricsAuthentication mBiometricsAuthentication;
+    private IBiometricsAuthenticationCallback mBiometricsAuthenticationCallback;
 
     private TextView errorMsg;
 
-    public void setIBiometricsAuthentication(IBiometricsAuthentication biometricsAuthentication) {
-        this.mBiometricsAuthentication = biometricsAuthentication;
+    public void setIBiometricsAuthentication(IBiometricsAuthenticationCallback mBiometricsAuthenticationCallback) {
+        this.mBiometricsAuthenticationCallback = mBiometricsAuthenticationCallback;
     }
 
     /**
@@ -96,10 +97,14 @@ public class FingerprintDialogFragment extends DialogFragment {
         fingerprintManager.authenticate(new FingerprintManager.CryptoObject(cipher), mCancellationSignal, 0, new FingerprintManager.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, CharSequence errString) {
+                // 指纹识别失败多次后
+                Log.d("onAuthenticationError", errorCode + "---" + errString);
                 if (!isSelfCancelled) {
                     errorMsg.setText(errString);
                     if (errorCode == FingerprintManager.FINGERPRINT_ERROR_LOCKOUT) {
-                        Toast.makeText(getActivity(), errString, Toast.LENGTH_SHORT).show();
+                        // 指纹识别失败多次，指纹识别已被锁定，暂时不能使用
+                        // Toast.makeText(getActivity(), "错误，errString:"+errString, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "失败次数过多，请稍后再试", Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
                 }
@@ -113,7 +118,7 @@ public class FingerprintDialogFragment extends DialogFragment {
             @Override
             public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
                 Toast.makeText(getActivity(), "指纹认证成功", Toast.LENGTH_SHORT).show();
-                mBiometricsAuthentication.onAuthenticationSuccess();
+                mBiometricsAuthenticationCallback.onAuthenticationSuccess();
             }
 
             @Override
